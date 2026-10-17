@@ -1,1 +1,55 @@
+/* Article rules from assets/site.css */
+.essay h1 em{color:var(--teal);font-style:italic}
+.essay{max-width:905px;margin:auto}
+.essay-head{padding:50px 0 39px;border-bottom:1px solid var(--line)}
+.backlink{display:inline-block;font-size:.78rem;text-decoration:none;font-weight:750;margin-bottom:41px}
+.essay-head h1{font-size:clamp(2.6rem,5.4vw,5rem);margin:17px 0 20px}
+.essay-head .lead{max-width:780px}
+.essay-meta{border-top:1px solid var(--line);margin-top:27px;padding-top:18px;display:flex;flex-wrap:wrap;gap:12px 25px;color:var(--muted);font-size:.69rem;font-weight:800;letter-spacing:.1em}
+.essay-body{max-width:760px;margin:40px auto 0}
+.essay-body>h2{font-size:2rem;margin:38px 0 14px}
+.essay-body>p{font-size:1.02rem;line-height:1.92;margin:0 0 19px;color:var(--ink-soft)}
+.essay-body code{background:var(--teal-soft);padding:1px 5px;border-radius:4px;color:var(--teal-dark)}
+.essay-callout{border-left:4px solid var(--teal);padding:21px 28px;background:var(--teal-soft);border-radius:0 12px 12px 0;margin-bottom:42px}
+.essay-callout>span,.essay-next>span{display:block;color:var(--teal);font-size:.69rem;letter-spacing:.12em;font-weight:850;margin-bottom:9px}
+.essay-callout>p{color:var(--ink);font:italic 1.2rem/1.57 Georgia,serif}
+.formula{padding:24px;overflow:auto;margin:25px 0;background:var(--paper);border:1px solid var(--line);border-radius:12px;text-align:center;font:500 1.05rem/1.9 Georgia,serif;color:var(--ink)}
+.essay-pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0}
+.mini-essay-card{padding:22px;border:1px solid var(--line);border-radius:13px;background:var(--paper)}
+.mini-essay-card strong{display:block;margin-bottom:9px;font-size:1rem}
+.mini-essay-card p{font-size:.88rem;color:var(--muted)}
+.end-thought{margin-top:35px}
+.essay-next{border-top:1px solid var(--line);padding-top:29px;margin:52px 0 0}
+.essay-next a{font:600 1.45rem/1.45 Georgia,serif;text-decoration:none;color:var(--ink)}
+.essay-next a:hover{color:var(--teal)}
+:root[data-theme="dark"] .essay-callout>p{color:#e3f4e8}
+:root[data-theme="dark"] .formula{color:#ecf2ec}
+@media(max-width:650px){.essay-pair{grid-template-columns:1fr}
+.essay-head{padding-top:37px}
+.essay-body{margin-top:29px}
+}
+@media(max-width:440px){.essay-head h1{font-size:clamp(2.4rem,10vw,3.4rem)}
+.essay-body>h2{font-size:1.65rem}
+}
+
+/* Article rules from assets/ux.css */
+@media(max-width:790px){.article-topbar{flex-wrap:wrap;padding:12px 0;gap:10px;}
+.article-topbar .topbar-left{flex:1 1 100%;min-width:0;}
+.article-topbar .topbar-right{width:100%;justify-content:flex-end;}
+.article-topbar .top-crumb{max-width:none;white-space:normal;overflow-wrap:anywhere;}
+}
+.essay-body h2{scroll-margin-top:24px;}
+.article-contents{background:var(--paper);border:1px solid var(--line);border-radius:12px;margin:0 0 24px;}
+.article-contents summary{cursor:pointer;padding:14px 20px;font-weight:700;min-height:48px;}
+.article-contents summary:focus-visible{outline:3px solid var(--teal);outline-offset:3px;}
+.article-contents nav{padding:0 20px 16px;}
+.article-contents ol{list-style:none;padding:0;margin:0;}
+.article-contents a{display:block;padding:9px 0;min-height:44px;}
+.related-demo{padding:22px 24px;border-left:4px solid var(--teal);background:var(--teal-soft);border-radius:0 12px 12px 0;margin-bottom:28px;}
+.related-demo p{margin:8px 0;font-size:.92rem;}
+.related-demo a{display:inline-block;padding:8px 0;font-weight:700;}
+@media print{.article-contents{display:none;}
+}
+
+/* Markdown figures, tables and code */
 .article-figure {margin:28px 0}.article-figure img {display:block;max-width:100%;height:auto;border-radius:12px}.article-figure figcaption {margin-top:10px;font-size:.85rem;color:var(--muted)}.article-figure figcaption p {margin:0}.essay-body .table-wrap {overflow-x:auto}.essay-body table {width:100%;border-collapse:collapse}.essay-body th,.essay-body td {padding:12px;text-align:left;border-bottom:1px solid var(--line)}.essay-body pre {overflow:auto;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:12px}.essay-body img {max-width:100%;height:auto}

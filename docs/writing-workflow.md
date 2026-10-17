@@ -23,7 +23,7 @@ Callouts use a block on separate lines:
 Your central idea, with **Markdown** formatting.
 :::
 
-:::note Assumptions
+:::note ASSUMPTIONS
 Your explanation.
 :::
 
@@ -49,3 +49,20 @@ node scripts/render-article.mjs writing/your-article-title/your-article-title.md
 The script writes `index.html` alongside the Markdown using `templates/article.html` and the existing site styles. Regenerate after editing the source. It never commits, pushes, or changes the homepage, Writing index, or sitemap. Publishing those listings remains a separate reviewed step. The current sample is intentionally a draft with placeholders.
 
 Use these extensions in authored prose. Do not nest extension blocks or place literal math delimiters or extension syntax inside code examples; this small renderer processes extensions before standard Markdown.
+
+## Comparison cards
+
+Use exactly two level-three headings, each with nonempty Markdown content. The renderer reports incomplete or extra cards as errors. Cards appear side by side on desktop and stack below 650px.
+
+```markdown
+
+:::comparison
+### Stability
+Time and space sampling must satisfy the numerical scheme’s stability conditions.
+
+### Dispersion
+Enough points per wavelength are needed to preserve wave behavior accurately.
+:::
+```
+
+All Writing articles load `site.css`, `ux.css`, then `article.css`. Article layout, callouts, equations, comparison cards, contents navigation, related links, and their responsive/dark/print rules live in `article.css`. Shared theme variables, navigation, typography foundations, and dates remain shared because other sections use them.

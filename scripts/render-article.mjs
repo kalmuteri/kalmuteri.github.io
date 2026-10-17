@@ -32,14 +32,18 @@ body=body.replace(/\$\$([\s\S]+?)\$\$|\$([^$\n]+)\$/g,(_,block,inline)=>{const n
 // Author content supports Markdown rather than executable raw HTML.
 function md(s){return marked.parse(s.replace(/<[^>]*>/g,m=>esc(m))).replace(/<p>(MATHPLACEHOLDER\d+END)<\/p>/g,'$1');}
 const blocks=[];
-body=body.replace(/^:::(idea|takeaway|note|figure)(?:[ \t]+([^\n]+))?\n([\s\S]*?)\n:::\s*$/gm,(_,kind,label,contents)=>{
+body=body.replace(/^:::(idea|takeaway|note|figure|comparison)(?:[ \t]+([^\n]+))?\n([\s\S]*?)\n:::\s*$/gm,(_,kind,label,contents)=>{
  const n=blocks.length;
- if(kind==='figure'){
+ if(kind==='comparison'){
+  const cards=[...contents.matchAll(/^### ([^\n]+)\n([\s\S]*?)(?=^### |$(?![\s\S]))/gm)];
+  if(cards.length!==2||contents.slice(0,cards[0]?.index).trim()||cards.some(c=>!c[2].trim()))throw Error('Comparison requires exactly two ### headings, each followed by content');
+  blocks.push(`<div class="essay-pair">${cards.map(c=>`<div class="mini-essay-card"><strong>${esc(c[1].trim())}</strong>${md(c[2].trim())}</div>`).join('')}</div>`);
+ }else if(kind==='figure'){
   const lines=contents.trim().split('\n'),image=lines.shift().match(/^!\[([^\]]+)\]\(([^)]+)\)$/);
   if(!image)throw Error('A figure begins with ![descriptive alt text](image-path)');
   const src=image[2];if(!/^https?:\/\//.test(src)&&!fs.existsSync(path.resolve(path.dirname(input),src)))throw Error(`Missing image: ${src}`);
   blocks.push(`<figure class="article-figure"><img src="${url(src)}" alt="${esc(image[1])}" loading="lazy"><figcaption>${md(lines.join('\n'))}</figcaption></figure>`);
- }else blocks.push(`<aside class="essay-callout${kind==='takeaway'?' end-thought':''}"><span>${esc(label||{idea:'The central idea',takeaway:'Takeaway',note:'Note'}[kind])}</span>${md(contents)}</aside>`);
+ }else blocks.push(`<aside class="essay-callout${kind==='takeaway'?' end-thought':''}"><span>${esc((label||{idea:'THE CENTRAL IDEA',takeaway:'TAKEAWAY',note:'NOTE'}[kind]).toUpperCase())}</span>${md(contents)}</aside>`);
  return `\nARTICLEBLOCK${n}END\n`;
 });
 let html=md(body).replace(/<p>ARTICLEBLOCK(\d+)END<\/p>/g,(_,n)=>blocks[n]).replace(/MATHPLACEHOLDER(\d+)END/g,(_,n)=>math[n]);
@@ -48,7 +52,7 @@ const headings=[];
 html=html.replace(/<h2>(.*?)<\/h2>/g,(_,text)=>{const id=`section-${headings.length+1}`;headings.push({id,text});return `<h2 id="${id}">${text}</h2>`;});
 const toc=headings.length?`<details class="article-contents"><summary>In this article</summary><nav aria-label="Article contents"><ol>${headings.map(h=>`<li><a href="#${h.id}">${h.text}</a></li>`).join('')}</ol></nav></details>`:'';
 const related=meta.related_url?`<aside class="related-demo"><strong>${esc(meta.related_title||'Explore this idea')}</strong>${meta.related_description?`<p>${esc(meta.related_description)}</p>`:''}<a href="${url(meta.related_url)}">${esc(meta.related_label||'Open related content')} →</a></aside>`:'';
-const next=meta.next_url?`<div class="essay-next"><span>Continue reading</span><a href="${url(meta.next_url)}">${esc(meta.next_title||'Next article')} ↗</a></div>`:'';
+const next=meta.next_url?`<div class="essay-next"><span>CONTINUE READING</span><a href="${url(meta.next_url)}">${esc(meta.next_title||'Next article')} ↗</a></div>`:'';
 const words=html.replace(/<[^>]+>/g,' ').split(/\s+/).length,minutes=Math.max(1,Math.ceil(words/220));
 let shell=fs.readFileSync(path.join(root,'templates/article.html'),'utf8');
 const vars={TITLE:esc(plain(meta.title)),SLUG:slug,SUMMARY:esc(meta.summary),ROBOTS:published?'index,follow':'noindex,nofollow',CONTENT:`<article class="essay"><header class="essay-head"><p class="eyebrow">${esc(meta.topic)} · ${esc(meta.type||'Essay')}${published?'':' · Draft preview'}</p><h1>${title(meta.title)}</h1><p class="content-date">${published?'Published '+stamp(meta.publication_date):'Draft · Not published'}${meta.updated_date?' · Updated '+stamp(meta.updated_date):''}</p><p class="lead">${esc(meta.subtitle||meta.summary)}</p><div class="essay-meta"><span>${esc(meta.type||'Essay')}${meta.article_number?' / '+esc(meta.article_number):''}</span><span>~${minutes} MIN READ</span><span>${esc(meta.topic)}</span></div></header><div class="essay-body">${toc}${related}${html}${next}</div></article>`};

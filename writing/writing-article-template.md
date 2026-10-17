@@ -38,13 +38,22 @@ Develop your first point. Include an example or evidence where useful.
 
 Develop the next point and explain how it connects to the first.
 
-:::note Assumptions
+:::note ASSUMPTIONS
 Explain any assumptions the reader should know.
 :::
 
 ### Optional subsection
 
 Add a subsection if the topic needs it.
+
+
+:::comparison
+### Stability
+Time and space sampling must satisfy the numerical scheme’s stability conditions.
+
+### Dispersion
+Enough points per wavelength are needed to preserve wave behavior accurately.
+:::
 
 ## An example or application
 
