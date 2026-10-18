@@ -66,3 +66,11 @@ Enough points per wavelength are needed to preserve wave behavior accurately.
 ```
 
 All Writing articles load `site.css`, `ux.css`, then `article.css`. Article layout, callouts, equations, comparison cards, contents navigation, related links, and their responsive/dark/print rules live in `article.css`. Shared theme variables, navigation, typography foundations, and dates remain shared because other sections use them.
+
+## Random Continue reading link
+
+Existing articles and the article shell load `assets/continue-reading.js`. Each page load fetches the current Writing index and randomly recommends one other article listed there. Keep drafts out of that index: it is the published-article list. Adding a published article to Writing makes it eligible without regenerating older pages.
+
+Within the same browser tab, the script remembers the previous recommendation and avoids immediately repeating it when at least two alternatives exist. With only two published articles, each can recommend only the other. If session storage is unavailable, selection still works but may repeat.
+
+`next_title` and `next_url` provide a static fallback for offline visits, disabled JavaScript, or an unavailable index. When the index loads successfully, the random selection replaces that fallback. If these fields are blank, the script creates the section once it finds an eligible article. If no other articles are listed, the section is hidden.
