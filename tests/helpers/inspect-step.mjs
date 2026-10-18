@@ -1,5 +1,5 @@
-import {laplacian} from './solver.js';
-import {sourceValue} from './sources.js';
+import {laplacian} from '../../assets/lab/solver.js';
+import {sourceValue} from '../../assets/lab/sources.js';
 export function inspect(s,x,z){
  const c=s.config;if(!Number.isInteger(x)||!Number.isInteger(z)||x<1||x>=c.nx-1||z<1||z>=c.nz-1)throw Error('Choose an interior stencil cell.');
  const k=z*c.nx+x,p=s.curr[k],previous=s.prev[k],left=s.curr[k-1],right=s.curr[k+1],up=s.curr[k-c.nx],down=s.curr[k+c.nx];

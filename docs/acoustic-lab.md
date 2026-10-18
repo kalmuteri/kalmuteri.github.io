@@ -111,7 +111,8 @@ outside these checks.
 - `models.js`, `sources.js`: velocity construction and physical source definitions.
 - `receivers.js`: preallocated sampled data and CSV export.
 - `run.js`: validates and constructs complete replacement runs.
-- `diagnostics.js`, `inspector.js`: sampling analysis and exact pointwise prediction.
+- `assets/lab/diagnostics.js`: sampling analysis.
+- `tests/helpers/inspect-step.mjs`: exact pointwise prediction used only by regression tests.
 - `renderer.js`, `clock.js`: display and wall-time scheduling, separate from physics.
 - `controls.js`, `lab.js`, `lab.css`: accessible inputs, orchestration and local styles.
 - `experiments.js`: deterministic guided setups and educational copy.

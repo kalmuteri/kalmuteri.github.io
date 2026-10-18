@@ -1,91 +1,84 @@
 # Khalid Almuteri — Personal Website
 
-A lightweight, responsive personal website ready for **GitHub Pages** at **https://kalmuteri.github.io/**.
+A static website published at [kalmuteri.github.io](https://kalmuteri.github.io/), built with HTML, CSS, and browser JavaScript. GitHub Pages serves the files directly; no site-wide build is required.
 
-Built with plain HTML, CSS, and vanilla JavaScript. No Node.js build, third-party themes, runtime dependencies, API keys, or tracking scripts.
+Articles can be authored in Markdown and rendered locally using Node.js and `marked`. Equations use MathJax from jsDelivr. HTML pages include Google Analytics measurement ID `G-J94NGL218Z`.
 
 ## Site structure
 
-```text
-kalmuteri.github.io/
-├── index.html                         Home
-├── about/index.html                   About
-├── work/index.html                    Research interests + interactive wave simulation
-├── writing/index.html                 Writing archive
-├── writing/strategy-field-guide/      Your original nine-chapter field guide
-├── writing/from-waves-to-computation/ A wave-equation explainer
-├── writing/physics-and-ai/           An AI + physics essay
-├── contact/index.html                 Contact / GitHub
-├── assets/site.css                    Shared theme and responsive styles
-├── assets/site.js                     Theme, menu and wavefield simulation
-├── assets/favicon.svg                 Site icon
-├── .nojekyll                          Publish files unmodified
-├── sitemap.xml                        Search engine URLs
-└── robots.txt                         Search engine directives
+| Path | Purpose |
+| --- | --- |
+| `index.html` | Homepage |
+| `about/` | Biography, research interests, and working principles |
+| `lab/` | Interactive laboratory index |
+| `lab/acoustic-wave/` | Acoustic wave simulation and three guided experiments |
+| `writing/` | Technical articles and Writing index |
+| `guides/strategy-field-guide/` | Nine-chapter leadership guide |
+| `guides/` | Guide index |
+| `contact/` | Contact page |
+| `assets/lab/` | Numerical solver, controls, diagnostics, and plotting |
+| `writing/writing-article-template.md` | Canonical Markdown article template |
+| `templates/article.html` | Shared HTML shell for generated articles |
+| `scripts/render-article.mjs` | Markdown-to-HTML renderer |
+| `tests/` | Numerical and article-renderer regression tests |
+| `tests/helpers/` | Test-only numerical helpers |
+| `docs/` | Writing workflow and acoustic-lab implementation notes |
+
+## Styling and behavior
+
+- `assets/site.css`: shared layout, typography foundations, theme variables, and site components.
+- `assets/ux.css`: shared accessibility, navigation refinements, and date styling.
+- `assets/article.css`: article layout, callouts, equations, comparison cards, figures, tables, code blocks, and article-specific responsive rules.
+- Articles load those three stylesheets in that order.
+- `assets/theme-init.js`: applies the saved theme before painting, using `:root[data-theme="dark"]`.
+- `assets/ux.js`: theme switching and accessible navigation behavior.
+- `assets/site.js`: updates the footer year.
+- `assets/social-preview.png` and `assets/favicon.svg`: social sharing image and site icon.
+
+The leadership guide uses its own page styles plus shared interaction assets. Its return link goes to Guides. Its chapter navigation, concept tabs, exercises, and print view remain separate from the Writing article renderer.
+
+## Write an article
+
+1. Copy `writing/writing-article-template.md` to `writing/<slug>/<slug>.md`.
+2. Set `slug` to the containing folder name and keep `status: "draft"` while preparing it.
+3. Put images beside the Markdown file.
+4. Install the renderer dependency and generate the page:
+
+```sh
+npm install --prefix scripts
+node scripts/render-article.mjs writing/<slug>/<slug>.md
 ```
 
-The **From Purpose to Progress** guide is an interactive HTML page with shared theme and navigation assets. Its header includes a return link to Writing. Chapter navigation supports browser history, and its tabs support arrow keys, Home, and End. Exercises, diagrams, and the print feature remain available.
+The renderer creates `index.html` beside the source. It does not update listings, commit, or deploy. Before publishing, set the publication date and status, regenerate, then add the article to `writing/index.html`, the homepage’s recent articles as appropriate, and `sitemap.xml`.
 
-## Publish at `https://kalmuteri.github.io/`
+See [the writing workflow](docs/writing-workflow.md) for title emphasis, LaTeX, callouts, comparison cards, captions, and related links. Draft pages use `noindex`, which is not access control: any deployed draft remains accessible by URL.
 
-1. Create a GitHub repository named exactly **`kalmuteri.github.io`** under the `kalmuteri` GitHub account. If that repository already exists, use it rather than creating another.
-2. Upload **the contents of this directory** (not the containing folder itself) to the repository root on the `main` branch.
-3. Open **Settings → Pages → Build and deployment**. Select **Deploy from a branch**, then choose **`main`** and **`/(root)`**. Save.
-4. Visit **https://kalmuteri.github.io/** once GitHub finishes publishing.
+## Local preview and checks
 
-Git option for a newly created empty repository:
+From the repository root:
 
-```bash
-git init
-git add .
-git commit -m "Launch personal website"
-git branch -M main
-git remote add origin https://github.com/kalmuteri/kalmuteri.github.io.git
-git push -u origin main
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-If you clone an existing repository instead, copy the files into its checkout and commit/push there; do not rerun `git init` or re-add `origin`.
+Open [the local preview](http://127.0.0.1:8000/).
 
-## Local preview
+With Node.js installed and renderer dependencies available:
 
-From the directory containing `index.html`:
-
-```bash
-python3 -m http.server 8000
+```sh
+node --test tests/lab.test.mjs tests/article-renderer.test.mjs
 ```
 
-Open `http://localhost:8000/`. Relative links also work in an ordinary static web host.
+Before publishing, check changed pages at desktop and mobile widths, both themes, keyboard navigation, and relevant equations or interactive controls. See [acoustic-lab notes](docs/acoustic-lab.md) for numerical assumptions and implementation history.
 
-## Customize before publishing
+## Deployment and URLs
 
-- **Biography:** edit `index.html` and `about/index.html`. Verify biographical and educational descriptions reflect what you want public.
-- **Work topics:** edit `work/index.html`. This page describes areas of interest rather than making claims about published or employer-owned projects.
-- **Writing:** add an HTML folder under `writing/`, then add links from `writing/index.html` and anywhere else you want. Update `sitemap.xml`.
-- **Contact:** the only contact link is currently your GitHub profile. Add a publicly shareable email/LinkedIn URL if desired; there is intentionally no invented contact information.
-- **Theme:** edit CSS custom properties near the start of `assets/site.css`. Dark theme variables are under `body.dark`.
-- **Shared navigation:** each HTML file contains its own static navigation to keep the site functional even without JavaScript.
+GitHub Pages publishes the `main` branch from the repository root. `.nojekyll` keeps the static files unprocessed. Review and commit the intended files, push to `origin`, and allow the Pages deployment to finish. Keep `sitemap.xml`, canonical URLs, and navigation links synchronized when adding or moving pages. `404.html` provides the missing-page screen, and `robots.txt` points crawlers to the sitemap.
 
-The current drafts for the two additional technical essays are original starter content, written to make the site useful on launch. Please review and personalize them before treating them as your published professional opinions.
+Use `/lab/` for laboratories, `/about/#research` for research interests, and `/guides/strategy-field-guide/` for the leadership guide.
 
-## Attribution and legal notes
+## Content maintenance
 
-- The strategy guide's content is sourced from the HTML file supplied for this project.
-- The additional essays and website copy are drafts intended for owner review.
-- Do not publish proprietary employer information, nonpublic datasets, or code without permission.
-## UX and shared assets
+Edit research interests in `about/index.html`, laboratory listings in `lab/index.html`, and guide listings in `guides/index.html`. Navigation is repeated in the static HTML pages and in the article shell; update each relevant page when changing it. Regenerate Markdown articles after changing their shell.
 
-- `assets/theme-init.js` applies the saved theme before the page is painted.
-- `assets/ux.js` manages theme preferences and accessible mobile menus across all pages.
-- `assets/ux.css` contains shared accessibility and responsive refinements.
-- `assets/social-preview.png` is the 1200 × 630 sharing image; update its absolute URL in page metadata if the domain changes.
-
-When updating navigation, verify the closed mobile menu is absent from the tab order, focus stays inside the open menu, Escape restores focus, and desktop resizing restores navigation. Check light/dark themes across the guide and site, guide browser Back/Forward and keyboard tabs, and wave controls while paused.
-
-## Site sections
-
-- **About** includes background, research interests, and working principles.
-- **Lab** (`/lab/`) lists interactive scientific laboratories, using the same list layout as Writing.
-- **Acoustic Wave Lab** (`/lab/acoustic-wave/`) contains the wave simulation and its three guided experiments. To add another laboratory, create a page under `lab/`, link it from `lab/index.html`, and add its URL to `sitemap.xml`.
-- **Writing** contains technical articles and explainers.
-- **Guides** (`/guides/`) contains the leadership field guide at `/guides/strategy-field-guide/`.
-- The old `/work/` and `/writing/strategy-field-guide/` URLs redirect while preserving bookmarks. `/work/#research` points to About.
+The leadership guide originated from user-supplied content. Review article text, figures, sources, and attribution before publication.

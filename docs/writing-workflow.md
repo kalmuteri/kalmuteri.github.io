@@ -46,7 +46,7 @@ npm install --prefix scripts
 node scripts/render-article.mjs writing/your-article-title/your-article-title.md
 ```
 
-The script writes `index.html` alongside the Markdown using `templates/article.html` and the existing site styles. Regenerate after editing the source. It never commits, pushes, or changes the homepage, Writing index, or sitemap. Publishing those listings remains a separate reviewed step. The current sample is intentionally a draft with placeholders.
+The script writes `index.html` alongside the Markdown using `templates/article.html` and the existing site styles. Regenerate after editing the source. It never commits, pushes, or changes the homepage, Writing index, or sitemap. Publishing those listings remains a separate reviewed step. The canonical template starts as a draft with placeholders; replace them before publication.
 
 Use these extensions in authored prose. Do not nest extension blocks or place literal math delimiters or extension syntax inside code examples; this small renderer processes extensions before standard Markdown.
 

@@ -80,7 +80,7 @@ test('two-layer model produces reflected and transmitted energy',()=>{
  for(let n=0;n<500;n++){a.step();b.step();if(n>280)reflected=Math.max(reflected,Math.abs(b.curr[45*101+50]-a.curr[45*101+50]));transmitted=Math.max(transmitted,Math.abs(b.curr[90*101+50]));}
  assert.ok(reflected>.005,`reflection ${reflected}`);assert.ok(transmitted>.01,`transmission ${transmitted}`);
 });
-import {inspect} from '../assets/lab/inspector.js';
+import {inspect} from './helpers/inspect-step.mjs';
 import {diagnostics,rickerBandwidth,phaseRatio} from '../assets/lab/diagnostics.js';
 import {experiments,experimentSetup} from '../assets/lab/experiments.js';
 test('inspector exactly predicts Float32 engine updates including damping and multiple forces',()=>{
