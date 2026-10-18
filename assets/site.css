@@ -46,9 +46,9 @@ strong{color:var(--ink)}
 .site-main{margin-left:264px;min-height:100vh;display:flex;flex-direction:column;padding:0 clamp(22px,3.3vw,57px)}
 .site-topbar{min-height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1140px;width:100%;margin:auto auto 0}
 .topbar-left,.topbar-right{display:flex;align-items:center;gap:17px}
-.top-crumb{font-size:.74rem;letter-spacing:.087em;font-weight:750;color:var(--muted)}
-.top-crumb a{color:var(--teal);text-decoration:none}
-.top-crumb a:hover{text-decoration:underline}
+
+
+
 .top-github{font-size:.7rem;font-weight:780;letter-spacing:.08em;color:var(--muted);text-decoration:none}
 .top-github:hover{color:var(--teal)}
 .theme-button,.menu-button{border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);border-radius:10px;padding:8px 13px;font-size:.77rem;font-weight:740;cursor:pointer;min-height:38px}
@@ -266,7 +266,7 @@ body.menu-open .menu-scrim{display:block;position:fixed;inset:0;background:#0615
 }
 @media(max-width:440px){.site-main{padding:0 17px}
 .topbar-left,.topbar-right{gap:8px}
-.top-crumb{font-size:.61rem;letter-spacing:.025em;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 .top-github{display:none}
 .theme-text{display:none}
 .hero-copy h1{font-size:clamp(2.5rem,10.8vw,4rem)}
