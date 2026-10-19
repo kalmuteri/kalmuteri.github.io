@@ -20,7 +20,8 @@ Articles can be authored in Markdown and rendered locally using Node.js and `mar
 | `writing/writing-article-template.md` | Canonical Markdown article template |
 | `templates/article.html` | Shared HTML shell for generated articles |
 | `scripts/render-article.mjs` | Markdown-to-HTML renderer |
-| `tests/` | Numerical and article-renderer regression tests |
+| `scripts/publish-article.mjs` | Generate an article and update Writing, Recent writing, and the sitemap |
+| `tests/` | Numerical, renderer, and publishing regression tests |
 | `tests/helpers/` | Test-only numerical helpers |
 | `docs/` | Writing workflow and acoustic-lab implementation notes |
 
@@ -49,7 +50,14 @@ npm install --prefix scripts
 node scripts/render-article.mjs writing/<slug>/<slug>.md
 ```
 
-The renderer creates `index.html` beside the source. It does not update listings, commit, or deploy. Before publishing, set the publication date and status, regenerate, then add the article to `writing/index.html`, the homepage’s recent articles as appropriate, and `sitemap.xml`.
+The renderer creates `index.html` beside the source. It does not update listings, commit, or deploy. To publish locally, set `status: "published"`, `publication_date`, and `topic`, then run:
+
+```sh
+node scripts/publish-article.mjs writing/<slug>/<slug>.md --dry-run
+node scripts/publish-article.mjs writing/<slug>/<slug>.md
+```
+
+The publishing script generates HTML, updates Writing, shows the three most recent articles on the homepage, and adds the sitemap entry. It does not commit or push.
 
 See [the writing workflow](docs/writing-workflow.md) for title emphasis, LaTeX, callouts, comparison cards, captions, and related links. Draft pages use `noindex`, which is not access control: any deployed draft remains accessible by URL.
 
@@ -66,7 +74,7 @@ Open [the local preview](http://127.0.0.1:8000/).
 With Node.js installed and renderer dependencies available:
 
 ```sh
-node --test tests/lab.test.mjs tests/article-renderer.test.mjs
+node --test tests/lab.test.mjs tests/article-renderer.test.mjs tests/article-publisher.test.mjs
 ```
 
 Before publishing, check changed pages at desktop and mobile widths, both themes, keyboard navigation, and relevant equations or interactive controls. See [acoustic-lab notes](docs/acoustic-lab.md) for numerical assumptions and implementation history.
