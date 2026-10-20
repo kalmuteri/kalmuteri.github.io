@@ -2,7 +2,8 @@
 title: "Your article | *title*"
 subtitle: "A short introduction displayed beneath the title"
 summary: "A concise summary for the Writing listing and search preview"
-type: "Essay"
+type: "Explainer"
+category: "technical"
 topic: "Numerical methods"
 slug: "your-article-title"
 status: "draft"
@@ -18,6 +19,9 @@ next_url: "../from-waves-to-computation/"
 ---
 
 <!-- HOW TO USE
+Set category to "technical" or "essay" for the Writing filters.
+Type is the displayed label: Essay, Explainer, Perspective, or another suitable label.
+For personal writing, use category: "essay" and remove technical examples you do not need.
 Replace the placeholders with your content. Delete any optional sections you do not need.
 Use headings without trailing periods. The title above becomes the page heading.
 I will calculate reading time, apply the site's design, render LaTeX, and add the article to Writing.

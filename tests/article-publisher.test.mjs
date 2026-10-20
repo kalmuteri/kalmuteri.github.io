@@ -53,3 +53,19 @@ test('older publication stays below recent articles and other page content is pr
  assert.equal(strip(before[0],'writing-list'),strip(writing,'writing-list'));
  assert.equal(strip(before[1],'post-list'),strip(f.read('index.html'),'post-list'));
 });
+test('category is independent of type and can be updated without duplicates',t=>{
+ const f=fixture(t);
+ fs.writeFileSync(f.input,f.source.replace('topic:', 'type: "Perspective"\ncategory: "essay"\ntopic:'));
+ let r=f.run();assert.equal(r.status,0,r.stderr);
+ assert.match(f.read('writing/index.html'),/href="test-article\/" class="writing-row" data-category="essay"/);
+ assert.match(f.read('writing/index.html'),/PERSPECTIVE/);
+ fs.writeFileSync(f.input,f.source.replace('topic:', 'category: "technical"\ntopic:'));
+ r=f.run();assert.equal(r.status,0,r.stderr);
+ assert.match(f.read('writing/index.html'),/href="test-article\/" class="writing-row" data-category="technical"/);
+ assert.equal(f.read('writing/index.html').split('href="test-article/"').length-1,1);
+});
+test('invalid categories fail without changing listings',t=>{
+ const f=fixture(t),before=f.snapshot();
+ fs.writeFileSync(f.input,f.source.replace('topic:', 'category: "invalid"\ntopic:'));
+ assert.notEqual(f.run().status,0);assert.deepEqual(f.snapshot(),before);
+});

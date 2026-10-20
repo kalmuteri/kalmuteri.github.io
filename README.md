@@ -41,7 +41,7 @@ The leadership guide uses its own page styles plus shared interaction assets. It
 ## Write an article
 
 1. Copy `writing/writing-article-template.md` to `writing/<slug>/<slug>.md`.
-2. Set `slug` to the containing folder name and keep `status: "draft"` while preparing it.
+2. Set `slug` to the containing folder name and keep `status: "draft"` while preparing it. Choose `category: "technical"` or `category: "essay"`; `type` supplies the visible label.
 3. Put images beside the Markdown file.
 4. Install the renderer dependency and generate the page:
 
@@ -74,7 +74,7 @@ Open [the local preview](http://127.0.0.1:8000/).
 With Node.js installed and renderer dependencies available:
 
 ```sh
-node --test tests/lab.test.mjs tests/article-renderer.test.mjs tests/article-publisher.test.mjs
+node --test tests/lab.test.mjs tests/article-renderer.test.mjs tests/article-publisher.test.mjs tests/writing-filters.test.mjs
 ```
 
 Before publishing, check changed pages at desktop and mobile widths, both themes, keyboard navigation, and relevant equations or interactive controls. See [acoustic-lab notes](docs/acoustic-lab.md) for numerical assumptions and implementation history.
@@ -86,6 +86,8 @@ GitHub Pages publishes the `main` branch from the repository root. `.nojekyll` k
 Use `/lab/` for laboratories, `/about/#research` for research interests, and `/guides/strategy-field-guide/` for the leadership guide.
 
 ## Content maintenance
+
+Keep proposed topics in [the future-articles backlog](docs/future-articles.md) and detailed recommendations in `docs/article-plans/`, starting with [spline interpolation](docs/article-plans/spline-interpolation.md).
 
 Edit research interests in `about/index.html`, laboratory listings in `lab/index.html`, and guide listings in `guides/index.html`. Navigation is repeated in the static HTML pages and in the article shell; update each relevant page when changing it. Regenerate Markdown articles after changing their shell.
 

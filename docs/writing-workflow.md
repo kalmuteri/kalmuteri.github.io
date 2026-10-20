@@ -6,7 +6,8 @@ Copy `writing/writing-article-template.md` into `writing/<slug>/<slug>.md`. Keep
 
 - `title: "From waves | to *computation*"`: `|` inserts a title line break; `*…*` produces teal italic emphasis. Plain text is used for browser and social titles.
 - `subtitle`: opening deck beneath the title; `summary` is the search description and falls back as the deck when subtitle is empty.
-- `topic`, `type`, optional `article_number`: article header metadata. Reading time is calculated.
+- `topic`, `type`, optional `article_number`: article header metadata. Reading time is calculated. `type` is the visible label, such as Essay, Explainer, or Perspective.
+- `category`: `technical` or `essay`, controlling the Writing filter independently of the type label. Older sources without this field default to `technical`; use an explicit category for new articles. Both the renderer and publisher reject invalid categories.
 - `status`: `draft` or `published`. Drafts display a preview label and request no search indexing. This is not access control.
 - `publication_date` and optional `updated_date`: explicit YYYY-MM-DD dates. Published content requires a publication date.
 - `slug`: must equal the article folder name.
@@ -133,3 +134,25 @@ The second publishing run should say `Already up to date`. Open:
 - `http://127.0.0.1:8770/sitemap.xml` — exactly one URL for the test article.
 
 Check desktop/mobile widths and light/dark themes. The preview copy omits About, Lab, Guides, and Contact, so those navigation destinations are unavailable there. Stop the server with Ctrl+C. Your original repository is unchanged by this manual test.
+
+## Technical articles and personal essays
+
+The Writing page has All, Technical, and Essays filters. The chosen category is stored in the URL (`?filter=essay` or `?filter=technical`) so refreshes and returning from an article preserve the choice. Without JavaScript, all entries remain available and the filters stay hidden. An empty category displays an explanation.
+
+For a personal essay, use:
+
+```yaml
+type: "Essay"
+category: "essay"
+topic: "Learning and discovery"
+```
+
+For a technical perspective, use:
+
+```yaml
+type: "Perspective"
+category: "technical"
+topic: "AI and science"
+```
+
+Both use the same rendering and publishing commands. The publisher writes `data-category` on the Writing row and updates it when republishing. Optional math, comparisons, assumptions, figures, and related-content panels can be removed for prose-only essays. For manually authored articles, set `data-category="technical"` or `data-category="essay"` on their Writing row. The two existing articles are Technical; no sample essay is published.

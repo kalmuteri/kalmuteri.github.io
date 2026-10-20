@@ -20,6 +20,7 @@ const slug=path.basename(path.dirname(input));
 if(meta.slug!==slug)throw Error('slug must match its containing directory');
 if(!meta.title||!meta.summary)throw Error('Title and summary are required');
 if(!['draft','published'].includes(meta.status))throw Error('status must be draft or published');
+if(meta.category!==undefined&&!['technical','essay'].includes(meta.category))throw Error('category must be technical or essay');
 const published=meta.status==='published';
 const date=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')&&!Number.isNaN(Date.parse(s));
 if(published&&!date(meta.publication_date))throw Error('Published articles require an ISO publication_date');

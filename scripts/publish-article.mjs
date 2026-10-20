@@ -37,6 +37,8 @@ try {
   meta[m[1]]=m[2].startsWith('"')?JSON.parse(m[2]):m[2];
   if(typeof meta[m[1]]!=='string')throw Error('Metadata values must be strings');
  }
+ const category=meta.category ?? 'technical';
+ if(!['technical','essay'].includes(category))throw Error('category must be technical or essay');
  if(meta.status!=='published')throw Error('Set status: "published" before publishing; use render-article.mjs for drafts');
  if(meta.slug!==slug)throw Error('slug must match its containing directory');
  for(const key of ['title','summary','topic'])if(!meta[key]?.trim())throw Error(`Missing ${key}`);
@@ -53,7 +55,7 @@ try {
  const date=meta.publication_date;
  const time=`<time datetime="${date}">${new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(date))}</time>`;
  const title=escape(plain(meta.title));
- const newRow=`<a href="${slug}/" class="writing-row"><span class="writing-bullet">00</span><span><small>${escape((meta.type||'Essay').toUpperCase())} · ${escape(meta.topic.toUpperCase())} · ${minutes} MIN READ · ${time}</small><strong>${title}</strong><span>${escape(meta.summary)}</span></span><b>↗</b></a>`;
+ const newRow=`<a href="${slug}/" class="writing-row" data-category="${category}"><span class="writing-bullet">00</span><span><small>${escape((meta.type||'Essay').toUpperCase())} · ${escape(meta.topic.toUpperCase())} · ${minutes} MIN READ · ${time}</small><strong>${title}</strong><span>${escape(meta.summary)}</span></span><b>↗</b></a>`;
  const route=row=>row.match(/href="([^"]+)"/)?.[1];
  const rows=writing.rows.filter(row=>route(row)!==`${slug}/`);
  rows.push(newRow);
