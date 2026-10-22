@@ -1,6 +1,6 @@
 # Writing articles
 
-Copy `writing/writing-article-template.md` into `writing/<slug>/<slug>.md`. Keep images alongside it. Metadata uses one `key: "value"` per line (JSON-style double-quoted strings); nested YAML is not supported.
+Copy `writings/writing-article-template.md` into `writings/<slug>/<slug>.md`. Keep images alongside it. Metadata uses one `key: "value"` per line (JSON-style double-quoted strings); nested YAML is not supported.
 
 ## Article features
 
@@ -44,12 +44,12 @@ Install the renderer dependency once:
 
 ```sh
 npm install --prefix scripts
-node scripts/render-article.mjs writing/your-article-title/your-article-title.md
+node scripts/render-article.mjs writings/your-article-title/your-article-title.md
 ```
 
 The script writes `index.html` alongside the Markdown using `templates/article.html` and the existing site styles. Regenerate after editing the source. It never commits, pushes, or changes the homepage, Writing index, or sitemap. Use the publishing script below to update those listings when the article is ready. The canonical template starts as a draft with placeholders; replace them before publication.
 
-Use these extensions in authored prose. Do not nest extension blocks or place literal math delimiters or extension syntax inside code examples; this small renderer processes extensions before standard Markdown.
+Use these extensions in authored prose. Do not nest extension blocks. Fenced and inline code examples are protected from math, extension, and footnote processing.
 
 ## Comparison cards
 
@@ -79,11 +79,11 @@ Within the same browser tab, the script remembers the previous recommendation an
 ## Publish an article locally
 
 Use Node.js 20 or newer and install dependencies with `npm ci --prefix scripts`.
-Set `status: "published"`, a real `publication_date` (`YYYY-MM-DD`), and a nonempty `title`, `summary`, and `topic`. The `slug` must match its folder under `writing/`.
+Set `status: "published"`, a real `publication_date` (`YYYY-MM-DD`), and a nonempty `title`, `summary`, and `topic`. The `slug` must match its folder under `writings/`.
 
 ```sh
-node scripts/publish-article.mjs writing/my-article/my-article.md --dry-run
-node scripts/publish-article.mjs writing/my-article/my-article.md
+node scripts/publish-article.mjs writings/my-article/my-article.md --dry-run
+node scripts/publish-article.mjs writings/my-article/my-article.md
 ```
 
 The dry run validates and renders in a temporary directory, reports the files that would change, and leaves the website untouched. The second command:
@@ -96,7 +96,7 @@ The dry run validates and renders in a temporary directory, reports the files th
 
 Running it again without changing the article produces no further changes. Rendering and listing validation finish before files are written; ordinary write failures restore the previous files. The command never commits, pushes, or changes Markdown status for you. Review `git diff` before deployment, and include the Markdown, generated HTML, and images in the commit alongside the listings.
 
-Limitations: this updates one article at a time using the current Writing list, including manually authored articles. It does not scan folders, unpublish articles, clean up renamed slugs, validate external links, detect placeholder prose, or schedule future publication dates. A future date is treated as ordinary metadata, not a scheduled release. Do not manually change the `writing-list` or `post-list` container structure without updating the script. The ignored `writing/my-test-article/` folder is for local tests; real articles should use a different descriptive slug.
+Limitations: this updates one article at a time using the current Writing list, including manually authored articles. It does not scan folders, unpublish articles, clean up renamed slugs, validate external links, detect placeholder prose, or schedule future publication dates. A future date is treated as ordinary metadata, not a scheduled release. Do not manually change the `writing-list` or `post-list` container structure without updating the script. The ignored `writings/my-test-article/` folder is for local tests; real articles should use a different descriptive slug.
 
 ## Test without changing your website
 
@@ -112,25 +112,25 @@ For a manual test, create an isolated preview copy from the repository root:
 
 ```sh
 preview_dir=$(mktemp -d /tmp/article-preview.XXXXXX)
-cp -R assets writing templates scripts index.html sitemap.xml "$preview_dir/"
+cp -R assets writings templates scripts index.html sitemap.xml "$preview_dir/"
 cd "$preview_dir"
 printf 'Preview folder: %s\n' "$preview_dir"
 ```
 
-This copies installed renderer dependencies as well as your existing `writing/my-test-article/`. In this temporary copy only, edit `writing/my-test-article/my-test-article.md`: set `status: "published"`, `publication_date: "2026-10-19"`, and keep a nonempty topic. Then run:
+This copies installed renderer dependencies as well as your existing `writings/my-test-article/`. In this temporary copy only, edit `writings/my-test-article/my-test-article.md`: set `status: "published"`, `publication_date: "2026-10-19"`, and keep a nonempty topic. Then run:
 
 ```sh
-node scripts/publish-article.mjs writing/my-test-article/my-test-article.md --dry-run
-node scripts/publish-article.mjs writing/my-test-article/my-test-article.md
-node scripts/publish-article.mjs writing/my-test-article/my-test-article.md
+node scripts/publish-article.mjs writings/my-test-article/my-test-article.md --dry-run
+node scripts/publish-article.mjs writings/my-test-article/my-test-article.md
+node scripts/publish-article.mjs writings/my-test-article/my-test-article.md
 python3 -m http.server 8770 --bind 127.0.0.1
 ```
 
 The second publishing run should say `Already up to date`. Open:
 
 - `http://127.0.0.1:8770/` — the article appears in Recent writing if among the three newest.
-- `http://127.0.0.1:8770/writing/` — one entry with the right title, summary, date, and link.
-- `http://127.0.0.1:8770/writing/my-test-article/` — published date, content, equations, image, comparison cards, and working contents links.
+- `http://127.0.0.1:8770/writings/` — one entry with the right title, summary, date, and link.
+- `http://127.0.0.1:8770/writings/my-test-article/` — published date, content, equations, image, comparison cards, and working contents links.
 - `http://127.0.0.1:8770/sitemap.xml` — exactly one URL for the test article.
 
 Check desktop/mobile widths and light/dark themes. The preview copy omits About, Lab, Guides, and Contact, so those navigation destinations are unavailable there. Stop the server with Ctrl+C. Your original repository is unchanged by this manual test.
@@ -156,3 +156,33 @@ topic: "AI and science"
 ```
 
 Both use the same rendering and publishing commands. The publisher writes `data-category` on the Writing row and updates it when republishing. Optional math, comparisons, assumptions, figures, and related-content panels can be removed for prose-only essays. For manually authored articles, set `data-category="technical"` or `data-category="essay"` on their Writing row. The two existing articles are Technical; no sample essay is published.
+
+## Header metadata and consistent HTML
+
+- `title` controls the visible heading, with `|` for a line break and `*emphasis*`.
+- Optional `page_title` sets the browser/social title independently; blank uses the plain heading.
+- Optional `breadcrumb` sets the breadcrumb text; blank uses the plain heading in uppercase.
+- Optional `subject` supplies the broad subject above the title. The header order is TYPE · SUBJECT; when omitted, `topic` is used.
+- `topic` is the more specific label below the title and in listings. For the wave article, `subject: "Geophysics"`, `type: "Explainer"`, and `topic: "Numerical methods"` produce EXPLAINER · GEOPHYSICS above and Numerical methods below. The metadata below the title uses sentence case, including the reading-time label (for example, Explainer / 001 · ~2 min read · Numerical methods).
+- Published pages include a `date` meta tag; pages with `updated_date` also include `last-modified`.
+
+Callouts consistently use `div` elements. Generated block markup is compacted while code-block whitespace is preserved. Apostrophes use literal characters. Reading time continues to be calculated automatically.
+
+## Footnotes
+
+Add a reference anywhere in article prose—including headings, lists, tables, callouts, comparison-card text, or figure captions—with `[^name]`. Put its definition on a separate line anywhere in the source outside code and extension blocks:
+
+```markdown
+A claim with a supporting note.[^source]
+
+[^source]: Supporting explanation with **formatting** and [a reference](https://example.com).
+    Continue a long note on an indented line.
+```
+
+Names may contain letters, digits, underscores, and hyphens. Notes are numbered by first reference and collected before Continue reading. Repeat a reference to reuse the same note; each occurrence gets its own return link. Undefined references, duplicate definitions, empty definitions, and references inside notes are rejected. Unused definitions are omitted. Inline and display math are supported in notes. Footnotes are for the article body, not frontmatter fields. Literal footnote syntax in code remains literal.
+
+## Search within a section
+
+Writing, Lab, and Guides provide a search field on the right of the listing controls; it moves below the Writing filters on narrow screens. Search matches all entered words against each listing's visible title, topic, and description, ignoring case and accents. It searches listings, not the full text inside article, guide, or lab pages. Writing search combines with All / Technical / Essays.
+
+Search and category are stored in URL parameters (`q` and `filter`) and restored on refresh or return navigation. Clear removes the search while retaining the category. Without JavaScript, all entries remain available. New published articles are searchable automatically through their generated listing rows.

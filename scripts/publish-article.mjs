@@ -22,10 +22,10 @@ function list(html,cls){
 }
 let temp;
 try {
- if(inputs.length!==1||inputs[0].startsWith('--'))throw Error('Usage: node scripts/publish-article.mjs writing/slug/slug.md [--dry-run]');
+ if(inputs.length!==1||inputs[0].startsWith('--'))throw Error('Usage: node scripts/publish-article.mjs writings/slug/slug.md [--dry-run]');
  const input=fs.realpathSync(path.resolve(inputs[0]));
  const relative=path.relative(fs.realpathSync(root),input);
- if(!/^writing\/[a-z0-9]+(?:-[a-z0-9]+)*\/[^/]+\.md$/.test(relative))throw Error('Input must be a Markdown file directly inside writing/<slug>/');
+ if(!/^writings\/[a-z0-9]+(?:-[a-z0-9]+)*\/[^/]+\.md$/.test(relative))throw Error('Input must be a Markdown file directly inside writings/<slug>/');
  const slug=relative.split('/')[1];
  const front=read(input).match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
  if(!front)throw Error('Missing metadata block');
@@ -43,7 +43,7 @@ try {
  if(meta.slug!==slug)throw Error('slug must match its containing directory');
  for(const key of ['title','summary','topic'])if(!meta[key]?.trim())throw Error(`Missing ${key}`);
  if(!validDate(meta.publication_date)||meta.updated_date&&!validDate(meta.updated_date))throw Error('Use real calendar dates in YYYY-MM-DD format');
- const writingPath=path.join(root,'writing/index.html'),homePath=path.join(root,'index.html'),mapPath=path.join(root,'sitemap.xml');
+ const writingPath=path.join(root,'writings/index.html'),homePath=path.join(root,'index.html'),mapPath=path.join(root,'sitemap.xml');
  const writing=list(read(writingPath),'writing-list'),home=list(read(homePath),'post-list'),sitemap=read(mapPath);
  if((sitemap.match(/<\/urlset>/g)||[]).length!==1)throw Error('Invalid sitemap');
  temp=fs.mkdtempSync(path.join(os.tmpdir(),'publish-article-'));
@@ -51,7 +51,7 @@ try {
  const result=spawnSync(process.execPath,[path.join(root,'scripts/render-article.mjs'),input,'--output',generated],{encoding:'utf8'});
  if(result.status!==0)throw Error(result.stderr||'Article rendering failed');
  const html=read(generated);
- const minutes=html.match(/~(\d+) MIN READ/)?.[1];if(!minutes)throw Error('Missing rendered reading time');
+ const minutes=html.match(/~(\d+) min read/i)?.[1];if(!minutes)throw Error('Missing rendered reading time');
  const date=meta.publication_date;
  const time=`<time datetime="${date}">${new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(date))}</time>`;
  const title=escape(plain(meta.title));
@@ -63,12 +63,12 @@ try {
  rows.sort((a,b)=>b.match(/datetime="([^"]+)"/)[1].localeCompare(a.match(/datetime="([^"]+)"/)[1]));
  const numbered=rows.map((row,i)=>row.replace(/(<span class="writing-bullet">)[^<]*(<\/span>)/,`$1${String(i+1).padStart(2,'0')}$2`));
  const homeRows=rows.slice(0,3).map(row=>{
-  const href='writing/'+route(row);
+  const href='writings/'+route(row);
   const existing=home.rows.find(r=>route(r)===href);
-  if(existing&&href!==`writing/${slug}/`)return existing;
+  if(existing&&href!==`writings/${slug}/`)return existing;
   const heading=row.match(/<strong>([\s\S]*?)<\/strong>/)[1];
   const stamp=row.match(/<time[\s\S]*?<\/time>/)[0];
-  const topic=href===`writing/${slug}/`?escape(meta.topic.toUpperCase()):row.match(/<small>[^·]*·\s*([^·]*)/)?.[1].trim()||'ARTICLE';
+  const topic=href===`writings/${slug}/`?escape(meta.topic.toUpperCase()):row.match(/<small>[^·]*·\s*([^·]*)/)?.[1].trim()||'ARTICLE';
   return `<a class="post-list-item" href="${href}"><span class="list-cat">${topic} · ${stamp}</span><span class="list-title">${heading}</span><span class="list-arrow">↗</span></a>`;
  });
  const canonical=html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];

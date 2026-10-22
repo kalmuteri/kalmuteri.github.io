@@ -12,12 +12,12 @@ Articles can be authored in Markdown and rendered locally using Node.js and `mar
 | `about/` | Biography, research interests, and working principles |
 | `lab/` | Interactive laboratory index |
 | `lab/acoustic-wave/` | Acoustic wave simulation and three guided experiments |
-| `writing/` | Technical articles and Writing index |
+| `writings/` | Technical articles and Writing index |
 | `guides/strategy-field-guide/` | Nine-chapter leadership guide |
 | `guides/` | Guide index |
 | `contact/` | Contact page |
 | `assets/lab/` | Numerical solver, controls, diagnostics, and plotting |
-| `writing/writing-article-template.md` | Canonical Markdown article template |
+| `writings/writing-article-template.md` | Canonical Markdown article template |
 | `templates/article.html` | Shared HTML shell for generated articles |
 | `scripts/render-article.mjs` | Markdown-to-HTML renderer |
 | `scripts/publish-article.mjs` | Generate an article and update Writing, Recent writing, and the sitemap |
@@ -40,21 +40,21 @@ The leadership guide uses its own page styles plus shared interaction assets. It
 
 ## Write an article
 
-1. Copy `writing/writing-article-template.md` to `writing/<slug>/<slug>.md`.
+1. Copy `writings/writing-article-template.md` to `writings/<slug>/<slug>.md`.
 2. Set `slug` to the containing folder name and keep `status: "draft"` while preparing it. Choose `category: "technical"` or `category: "essay"`; `type` supplies the visible label.
 3. Put images beside the Markdown file.
 4. Install the renderer dependency and generate the page:
 
 ```sh
 npm install --prefix scripts
-node scripts/render-article.mjs writing/<slug>/<slug>.md
+node scripts/render-article.mjs writings/<slug>/<slug>.md
 ```
 
 The renderer creates `index.html` beside the source. It does not update listings, commit, or deploy. To publish locally, set `status: "published"`, `publication_date`, and `topic`, then run:
 
 ```sh
-node scripts/publish-article.mjs writing/<slug>/<slug>.md --dry-run
-node scripts/publish-article.mjs writing/<slug>/<slug>.md
+node scripts/publish-article.mjs writings/<slug>/<slug>.md --dry-run
+node scripts/publish-article.mjs writings/<slug>/<slug>.md
 ```
 
 The publishing script generates HTML, updates Writing, shows the three most recent articles on the homepage, and adds the sitemap entry. It does not commit or push.

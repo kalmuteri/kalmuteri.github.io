@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 const {marked}=await import(process.env.MARKED_MODULE || 'marked');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const input=path.resolve(process.argv[2]||'');
-if(!process.argv[2])throw Error('Usage: node scripts/render-article.mjs writing/article/article.md');
+if(!process.argv[2])throw Error('Usage: node scripts/render-article.mjs writings/article/article.md');
 const raw=fs.readFileSync(input,'utf8'),front=raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
 if(!front)throw Error('Missing metadata block');
 const meta={};
@@ -28,10 +28,35 @@ if(meta.updated_date&&!date(meta.updated_date))throw Error('Invalid updated_date
 const stamp=s=>`<time datetime="${s}">${new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(s))}</time>`;
 function url(s){if(!s||/^(?:[a-z]+:|\/\/)/i.test(s)&&!/^https?:\/\//i.test(s))throw Error('Use a relative or HTTPS link');return esc(s);}
 let body=raw.slice(front[0].length).replace(/<!--[\s\S]*?-->/g,'');
+// Protect code examples from math, callout, and footnote preprocessing.
+const code=[];
+body=body.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$|(`+)[^\n]*?\2/gm, match=>{
+ const n=code.length;code.push(match);return `CODEPLACEHOLDER${n}END`;
+});
+const definitions=new Map();
+body=body.replace(/^\[\^([a-zA-Z0-9_-]+)\]:[ \t]*(.*(?:\n(?: {4}|\t).*)*)$/gm,(_,id,text)=>{
+ if(definitions.has(id))throw Error(`Duplicate footnote: ${id}`);
+ const value=text.replace(/\n(?: {4}|\t)/g,'\n').trim();
+ if(!value)throw Error(`Empty footnote: ${id}`);
+ definitions.set(id,value);return '';
+});
+const notes=new Map(),references=[];
+body=body.replace(/\[\^([a-zA-Z0-9_-]+)\]/g,(_,id)=>{
+ if(!definitions.has(id))throw Error(`Undefined footnote: ${id}`);
+ if(!notes.has(id))notes.set(id,{number:notes.size+1,refs:[]});
+ const note=notes.get(id),ref=`fnref-${id}-${note.refs.length+1}`;
+ note.refs.push(ref);
+ const n=references.length;
+ references.push(`<sup class="footnote-ref" id="${ref}"><a href="#fn-${id}" role="doc-noteref" aria-label="Footnote ${note.number}">${note.number}</a></sup>`);
+ return `FOOTNOTEPLACEHOLDER${n}END`;
+});
 const math=[];
 body=body.replace(/\$\$([\s\S]+?)\$\$|\$([^$\n]+)\$/g,(_,block,inline)=>{const n=math.length;math.push(block?`<div class="formula">\\[${esc(block.trim())}\\]</div>`:`\\(${esc(inline)}\\)`);return `MATHPLACEHOLDER${n}END`;});
 // Author content supports Markdown rather than executable raw HTML.
-function md(s){return marked.parse(s.replace(/<[^>]*>/g,m=>esc(m))).replace(/<p>(MATHPLACEHOLDER\d+END)<\/p>/g,'$1');}
+function md(s){
+ s=s.replace(/CODEPLACEHOLDER(\d+)END/g,(_,n)=>code[n]);
+ return marked.parse(s.replace(/<[^>]*>/g,m=>esc(m))).replace(/&#39;/g,"'").replace(/<p>(MATHPLACEHOLDER\d+END)<\/p>/g,'$1');
+}
 const blocks=[];
 body=body.replace(/^:::(idea|takeaway|note|figure|comparison)(?:[ \t]+([^\n]+))?\n([\s\S]*?)\n:::\s*$/gm,(_,kind,label,contents)=>{
  const n=blocks.length;
@@ -44,19 +69,38 @@ body=body.replace(/^:::(idea|takeaway|note|figure|comparison)(?:[ \t]+([^\n]+))?
   if(!image)throw Error('A figure begins with ![descriptive alt text](image-path)');
   const src=image[2];if(!/^https?:\/\//.test(src)&&!fs.existsSync(path.resolve(path.dirname(input),src)))throw Error(`Missing image: ${src}`);
   blocks.push(`<figure class="article-figure"><img src="${url(src)}" alt="${esc(image[1])}" loading="lazy"><figcaption>${md(lines.join('\n'))}</figcaption></figure>`);
- }else blocks.push(`<aside class="essay-callout${kind==='takeaway'?' end-thought':''}"><span>${esc((label||{idea:'THE CENTRAL IDEA',takeaway:'TAKEAWAY',note:'NOTE'}[kind]).toUpperCase())}</span>${md(contents)}</aside>`);
+ }else blocks.push(`<div class="essay-callout${kind==='takeaway'?' end-thought':''}"><span>${esc((label||{idea:'THE CENTRAL IDEA',takeaway:'TAKEAWAY',note:'NOTE'}[kind]).toUpperCase())}</span>${md(contents)}</div>`);
  return `\nARTICLEBLOCK${n}END\n`;
 });
 let html=md(body).replace(/<p>ARTICLEBLOCK(\d+)END<\/p>/g,(_,n)=>blocks[n]).replace(/MATHPLACEHOLDER(\d+)END/g,(_,n)=>math[n]);
 html=html.replace(/<table>/g,'<div class="table-wrap"><table class="data-table">').replace(/<\/table>/g,'</table></div>');
 const headings=[];
-html=html.replace(/<h2>(.*?)<\/h2>/g,(_,text)=>{const id=`section-${headings.length+1}`;headings.push({id,text});return `<h2 id="${id}">${text}</h2>`;});
+html=html.replace(/<h2>(.*?)<\/h2>/g,(_,text)=>{const id=`section-${headings.length+1}`;headings.push({id,text:text.replace(/FOOTNOTEPLACEHOLDER\d+END/g,'')});return `<h2 id="${id}">${text}</h2>`;});
 const toc=headings.length?`<details class="article-contents"><summary>In this article</summary><nav aria-label="Article contents"><ol>${headings.map(h=>`<li><a href="#${h.id}">${h.text}</a></li>`).join('')}</ol></nav></details>`:'';
 const related=meta.related_url?`<aside class="related-demo"><strong>${esc(meta.related_title||'Explore this idea')}</strong>${meta.related_description?`<p>${esc(meta.related_description)}</p>`:''}<a href="${url(meta.related_url)}">${esc(meta.related_label||'Open related content')} →</a></aside>`:'';
 const next=meta.next_url?`<div class="essay-next"><span>CONTINUE READING</span><a href="${url(meta.next_url)}">${esc(meta.next_title||'Next article')} ↗</a></div>`:'';
+let footnotes='';
+if(notes.size){
+ const items=[...notes].map(([id,note])=>{
+  let text=definitions.get(id);
+  if(/\[\^[a-zA-Z0-9_-]+\]/.test(text))throw Error('Footnotes cannot reference other footnotes');
+  text=text.replace(/\$\$([\s\S]+?)\$\$|\$([^$\n]+)\$/g,(_,block,inline)=>{
+   const n=math.length;math.push(block?`<div class="formula">\\[${esc(block.trim())}\\]</div>`:`\\(${esc(inline)}\\)`);return `MATHPLACEHOLDER${n}END`;
+  });
+  return `<li id="fn-${id}" tabindex="-1">${md(text)}<span class="footnote-backlinks">${note.refs.map((ref,i)=>`<a href="#${ref}" role="doc-backlink" aria-label="Back to reference ${note.number}${note.refs.length>1?'.'+(i+1):''}">↩${note.refs.length>1?i+1:''}</a>`).join(' ')}</span></li>`;
+ }).join('');
+ footnotes=`<section class="article-footnotes" role="doc-endnotes" aria-labelledby="footnotes-title"><h2 id="footnotes-title">Footnotes</h2><ol>${items}</ol></section>`;
+}
 const words=html.replace(/<[^>]+>/g,' ').split(/\s+/).length,minutes=Math.max(1,Math.ceil(words/220));
 let shell=fs.readFileSync(path.join(root,'templates/article.html'),'utf8');
-const vars={TITLE:esc(plain(meta.title)),SLUG:slug,SUMMARY:esc(meta.summary),ROBOTS:published?'index,follow':'noindex,nofollow',CONTENT:`<article class="essay"><header class="essay-head"><p class="eyebrow">${esc(meta.topic)} · ${esc(meta.type||'Essay')}${published?'':' · Draft preview'}</p><h1>${title(meta.title)}</h1><p class="content-date">${published?'Published '+stamp(meta.publication_date):'Draft · Not published'}${meta.updated_date?' · Updated '+stamp(meta.updated_date):''}</p><p class="lead">${esc(meta.subtitle||meta.summary)}</p><div class="essay-meta"><span>${esc(meta.type||'Essay')}${meta.article_number?' / '+esc(meta.article_number):''}</span><span>~${minutes} MIN READ</span><span>${esc(meta.topic)}</span></div></header><div class="essay-body">${toc}${related}${html}${next}</div></article>`};
+const vars={TITLE:esc(meta.page_title||plain(meta.title)),BREADCRUMB:esc(meta.breadcrumb||plain(meta.title).toUpperCase()),DATES:(published?`<meta name="date" content="${meta.publication_date}">`:'')+(meta.updated_date?`<meta name="last-modified" content="${meta.updated_date}">`:''),SLUG:slug,SUMMARY:esc(meta.summary),ROBOTS:published?'index,follow':'noindex,nofollow',CONTENT:`<article class="essay"><header class="essay-head"><p class="eyebrow">${esc((meta.type||'Essay').toUpperCase())} · ${esc((meta.subject||meta.topic||'').toUpperCase())}${published?'':' · Draft preview'}</p><h1>${title(meta.title)}</h1><p class="content-date">${published?'Published '+stamp(meta.publication_date):'Draft · Not published'}${meta.updated_date?' · Updated '+stamp(meta.updated_date):''}</p><p class="lead">${esc(meta.subtitle||meta.summary)}</p><div class="essay-meta"><span>${esc(meta.type||'Essay')}${meta.article_number?' / '+esc(meta.article_number):''}</span><span>~${minutes} min read</span><span>${esc(meta.topic||'')}</span></div></header><div class="essay-body">${toc}${related}${html}${footnotes}${next}</div></article>`};
 shell=shell.replace(/\{\{([A-Z]+)\}\}/g,(_,key)=>vars[key]??'');
+shell=shell.replace(/FOOTNOTEPLACEHOLDER(\d+)END/g,(_,n)=>references[n]).replace(/MATHPLACEHOLDER(\d+)END/g,(_,n)=>math[n]);
+// Compact only block markup inside the article; keep code whitespace intact.
+const pre=[];
+shell=shell.replace(/<article class="essay">[\s\S]*?<\/article>/, article=>article
+ .replace(/<pre\b[\s\S]*?<\/pre>/g, block=>{const n=pre.length;pre.push(block);return `PREBLOCK${n}END`;})
+ .replace(/(<\/(?:p|h[1-6]|div|aside|section|header|li|ul|ol|table|tr|td|th|thead|tbody|blockquote|figure|figcaption)>)[ \t]*\n\s*(?=<)/g,'$1')
+ .replace(/PREBLOCK(\d+)END/g,(_,n)=>pre[n]));
 if(process.argv.length>3 && (process.argv[3]!=='--output'||!process.argv[4]||process.argv.length!==5))throw Error('Optional argument: --output path');
 const out=process.argv[3]==='--output'?path.resolve(process.argv[4]):path.join(path.dirname(input),'index.html');fs.writeFileSync(out,shell);console.log(`Rendered ${out} (${meta.status}, ${minutes} min)`);

@@ -2,7 +2,7 @@
 (async () => {
   const body = document.querySelector('.essay-body');
   if (!body) return;
-  const indexURL = new URL('/writing/', location.href);
+  const indexURL = new URL('/writings/', location.href);
   const currentPath = location.pathname.replace(/index\.html$/, '').replace(/\/$/, '');
   try {
     const response = await fetch(indexURL.href, {cache: 'no-cache'});
@@ -15,7 +15,7 @@
       if (!href || !title) continue;
       const url = new URL(href, indexURL);
       const route = url.pathname.replace(/index\.html$/, '').replace(/\/$/, '');
-      if (url.origin !== location.origin || !/^\/writing\/[a-z0-9-]+$/.test(route) || route === currentPath) continue;
+      if (url.origin !== location.origin || !/^\/writings\/[a-z0-9-]+$/.test(route) || route === currentPath) continue;
       candidates.set(route, {href: route + '/', title});
     }
     let section = body.querySelector('.essay-next');

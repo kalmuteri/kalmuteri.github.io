@@ -1,5 +1,8 @@
 ---
 title: "Physics and machine | learning are *better together*"
+page_title: "Physics and Machine Learning"
+breadcrumb: "PHYSICS & AI"
+subject: "AI & science"
 subtitle: "Data-driven systems are powerful, but they become far more useful when we understand what the data can—and cannot—tell us."
 summary: "How physics-based modeling and machine learning can complement one another in scientific computing."
 type: "Perspective"

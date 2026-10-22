@@ -1,7 +1,10 @@
 ---
 title: "Your article | *title*"
+page_title: ""
+breadcrumb: ""
+subject: "Geophysics"
 subtitle: "A short introduction displayed beneath the title"
-summary: "A concise summary for the Writing listing and search preview"
+summary: "A concise summary for the Writings listing and search preview"
 type: "Explainer"
 category: "technical"
 topic: "Numerical methods"
@@ -19,12 +22,12 @@ next_url: "../from-waves-to-computation/"
 ---
 
 <!-- HOW TO USE
-Set category to "technical" or "essay" for the Writing filters.
+Set category to "technical" or "essay" for the Writings filters.
 Type is the displayed label: Essay, Explainer, Perspective, or another suitable label.
 For personal writing, use category: "essay" and remove technical examples you do not need.
 Replace the placeholders with your content. Delete any optional sections you do not need.
 Use headings without trailing periods. The title above becomes the page heading.
-I will calculate reading time, apply the site's design, render LaTeX, and add the article to Writing.
+I will calculate reading time, apply the site's design, render LaTeX, and add the article to Writings.
 Comments like this one and the publishing notes below are editorial instructions, not article content.
 -->
 
@@ -94,6 +97,12 @@ Figure 1: Your caption. Add the source or credit when applicable.
 | --- | --- |
 | First item | Your explanation |
 | Second item | Your explanation |
+
+## Footnote example
+
+Add a supporting detail without interrupting the paragraph.[^detail]
+
+[^detail]: A footnote can contain **Markdown**, [a source](https://example.com), and inline math such as $x^2$.
 
 ## Limitations or open questions
 

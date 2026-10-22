@@ -53,3 +53,11 @@
 
 /* Markdown figures, tables and code */
 .article-figure {margin:28px 0}.article-figure img {display:block;max-width:100%;height:auto;border-radius:12px}.article-figure figcaption {margin-top:10px;font-size:.85rem;color:var(--muted)}.article-figure figcaption p {margin:0}.essay-body .table-wrap {overflow-x:auto}.essay-body table {width:100%;border-collapse:collapse}.essay-body th,.essay-body td {padding:12px;text-align:left;border-bottom:1px solid var(--line)}.essay-body pre {overflow:auto;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:12px}.essay-body img {max-width:100%;height:auto}
+
+.article-footnotes{border-top:1px solid var(--line);margin-top:36px;padding-top:12px;font-size:.9rem}
+.article-footnotes li{padding:8px 0;scroll-margin-top:100px;overflow-wrap:anywhere}
+.footnote-ref{font-size:.72em;line-height:0;scroll-margin-top:100px}
+.footnote-ref a,.footnote-backlinks a{color:var(--teal);text-decoration:underline;text-underline-offset:3px}
+.footnote-ref a:focus-visible,.footnote-backlinks a:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.article-footnotes li:target{background:var(--teal-soft)}
+.footnote-backlinks{display:inline-flex;gap:10px}

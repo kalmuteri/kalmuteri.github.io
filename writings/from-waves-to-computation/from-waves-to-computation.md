@@ -1,5 +1,8 @@
 ---
 title: "From waves | to *computation*"
+page_title: "From Waves to Computation"
+breadcrumb: "FROM WAVES TO COMPUTATION"
+subject: "Geophysics"
 subtitle: "The wave equation is simple to write. Simulating its behavior in the real world is where the interesting decisions begin."
 summary: "An introduction to numerically solving the acoustic wave equation and the tradeoffs of stability and dispersion."
 type: "Explainer"
