@@ -1,4 +1,4 @@
-# Writing articles
+# Writings articles
 
 Copy `writings/writing-article-template.md` into `writings/<slug>/<slug>.md`. Keep images alongside it. Metadata uses one `key: "value"` per line (JSON-style double-quoted strings); nested YAML is not supported.
 
@@ -7,7 +7,7 @@ Copy `writings/writing-article-template.md` into `writings/<slug>/<slug>.md`. Ke
 - `title: "From waves | to *computation*"`: `|` inserts a title line break; `*…*` produces teal italic emphasis. Plain text is used for browser and social titles.
 - `subtitle`: opening deck beneath the title; `summary` is the search description and falls back as the deck when subtitle is empty.
 - `topic`, `type`, optional `article_number`: article header metadata. Reading time is calculated. `type` is the visible label, such as Essay, Explainer, or Perspective.
-- `category`: `technical` or `essay`, controlling the Writing filter independently of the type label. Older sources without this field default to `technical`; use an explicit category for new articles. Both the renderer and publisher reject invalid categories.
+- `category`: `technical` or `essay`, controlling the Writings filter independently of the type label. Older sources without this field default to `technical`; use an explicit category for new articles. Both the renderer and publisher reject invalid categories.
 - `status`: `draft` or `published`. Drafts display a preview label and request no search indexing. This is not access control.
 - `publication_date` and optional `updated_date`: explicit YYYY-MM-DD dates. Published content requires a publication date.
 - `slug`: must equal the article folder name.
@@ -47,7 +47,7 @@ npm install --prefix scripts
 node scripts/render-article.mjs writings/your-article-title/your-article-title.md
 ```
 
-The script writes `index.html` alongside the Markdown using `templates/article.html` and the existing site styles. Regenerate after editing the source. It never commits, pushes, or changes the homepage, Writing index, or sitemap. Use the publishing script below to update those listings when the article is ready. The canonical template starts as a draft with placeholders; replace them before publication.
+The script writes `index.html` alongside the Markdown using `templates/article.html` and the existing site styles. Regenerate after editing the source. It never commits, pushes, or changes the homepage, Writings index, or sitemap. Use the publishing script below to update those listings when the article is ready. The canonical template starts as a draft with placeholders; replace them before publication.
 
 Use these extensions in authored prose. Do not nest extension blocks. Fenced and inline code examples are protected from math, extension, and footnote processing.
 
@@ -66,11 +66,11 @@ Enough points per wavelength are needed to preserve wave behavior accurately.
 :::
 ```
 
-All Writing articles load `site.css`, `ux.css`, then `article.css`. Article layout, callouts, equations, comparison cards, contents navigation, related links, and their responsive/dark/print rules live in `article.css`. Shared theme variables, navigation, typography foundations, and dates remain shared because other sections use them.
+All Writings articles load `site.css`, `ux.css`, then `article.css`. Article layout, callouts, equations, comparison cards, contents navigation, related links, and their responsive/dark/print rules live in `article.css`. Shared theme variables, navigation, typography foundations, and dates remain shared because other sections use them.
 
 ## Random Continue reading link
 
-Existing articles and the article shell load `assets/continue-reading.js`. Each page load fetches the current Writing index and randomly recommends one other article listed there. Keep drafts out of that index: it is the published-article list. Adding a published article to Writing makes it eligible without regenerating older pages.
+Existing articles and the article shell load `assets/continue-reading.js`. Each page load fetches the current Writings index and randomly recommends one other article listed there. Keep drafts out of that index: it is the published-article list. Adding a published article to Writings makes it eligible without regenerating older pages.
 
 Within the same browser tab, the script remembers the previous recommendation and avoids immediately repeating it when at least two alternatives exist. With only two published articles, each can recommend only the other. If session storage is unavailable, selection still works but may repeat.
 
@@ -89,14 +89,14 @@ node scripts/publish-article.mjs writings/my-article/my-article.md
 The dry run validates and renders in a temporary directory, reports the files that would change, and leaves the website untouched. The second command:
 
 - Regenerates the article's `index.html` using the shared template.
-- Adds or updates its Writing row with title, summary, topic, type, reading time, and publication date.
-- Sorts Writing by publication date, newest first, and renumbers the rows.
+- Adds or updates its Writings row with title, summary, topic, type, reading time, and publication date.
+- Sorts Writings by publication date, newest first, and renumbers the rows.
 - Updates the homepage's Recent writing to the three newest articles. Existing homepage titles are retained for other articles.
 - Adds its canonical URL to the sitemap without duplicates.
 
 Running it again without changing the article produces no further changes. Rendering and listing validation finish before files are written; ordinary write failures restore the previous files. The command never commits, pushes, or changes Markdown status for you. Review `git diff` before deployment, and include the Markdown, generated HTML, and images in the commit alongside the listings.
 
-Limitations: this updates one article at a time using the current Writing list, including manually authored articles. It does not scan folders, unpublish articles, clean up renamed slugs, validate external links, detect placeholder prose, or schedule future publication dates. A future date is treated as ordinary metadata, not a scheduled release. Do not manually change the `writing-list` or `post-list` container structure without updating the script. The ignored `writings/my-test-article/` folder is for local tests; real articles should use a different descriptive slug.
+Limitations: this updates one article at a time using the current Writings list, including manually authored articles. It does not scan folders, unpublish articles, clean up renamed slugs, validate external links, detect placeholder prose, or schedule future publication dates. A future date is treated as ordinary metadata, not a scheduled release. Do not manually change the `writing-list` or `post-list` container structure without updating the script. The ignored `writings/my-test-article/` folder is for local tests; real articles should use a different descriptive slug.
 
 ## Test without changing your website
 
@@ -137,7 +137,7 @@ Check desktop/mobile widths and light/dark themes. The preview copy omits About,
 
 ## Technical articles and personal essays
 
-The Writing page has All, Technical, and Essays filters. The chosen category is stored in the URL (`?filter=essay` or `?filter=technical`) so refreshes and returning from an article preserve the choice. Without JavaScript, all entries remain available and the filters stay hidden. An empty category displays an explanation.
+The Writings page has All, Technical, and Essays filters. The chosen category is stored in the URL (`?filter=essay` or `?filter=technical`) so refreshes and returning from an article preserve the choice. Without JavaScript, all entries remain available and the filters stay hidden. An empty category displays an explanation.
 
 For a personal essay, use:
 
@@ -155,7 +155,7 @@ category: "technical"
 topic: "AI and science"
 ```
 
-Both use the same rendering and publishing commands. The publisher writes `data-category` on the Writing row and updates it when republishing. Optional math, comparisons, assumptions, figures, and related-content panels can be removed for prose-only essays. For manually authored articles, set `data-category="technical"` or `data-category="essay"` on their Writing row. The two existing articles are Technical; no sample essay is published.
+Both use the same rendering and publishing commands. The publisher writes `data-category` on the Writings row and updates it when republishing. Optional math, comparisons, assumptions, figures, and related-content panels can be removed for prose-only essays. For manually authored articles, set `data-category="technical"` or `data-category="essay"` on their Writings row. The two existing articles are Technical; no sample essay is published.
 
 ## Header metadata and consistent HTML
 
@@ -168,21 +168,55 @@ Both use the same rendering and publishing commands. The publisher writes `data-
 
 Callouts consistently use `div` elements. Generated block markup is compacted while code-block whitespace is preserved. Apostrophes use literal characters. Reading time continues to be calculated automatically.
 
-## Footnotes
+## References, further reading, and footnotes
 
-Add a reference anywhere in article prose—including headings, lists, tables, callouts, comparison-card text, or figure captions—with `[^name]`. Put its definition on a separate line anywhere in the source outside code and extension blocks:
+Definitions are separated by name:
+
+| Syntax | Destination | Inline citation required? |
+| --- | --- | --- |
+| `[^source]: ...` or `[^source-name]: ...` | References and further reading | No; cite it when supporting a claim |
+| `[^further]: ...` | References and further reading | No; repeat this definition for multiple entries |
+| `[^further-name]: ...` | References and further reading | Optional; use a unique name if cited |
+| `[^footnote]: ...`, `[^note]: ...`, or another name | Footnotes | Yes |
+
+Use `source-` or `further-` prefixes for named references. Other names remain ordinary footnotes. Names are case-sensitive and may contain letters, digits, underscores, and hyphens.
 
 ```markdown
-A claim with a supporting note.[^source]
+A claim with a cited source.[^source-waves]
+A detail explained separately.[^note]
 
-[^source]: Supporting explanation with **formatting** and [a reference](https://example.com).
-    Continue a long note on an indented line.
+[^source-waves]: Author. Year. [Source title](https://example.com).
+[^further]: Author. Year. [Another source](https://example.com).
+[^further]: Author. *Book title*. Publisher, year.
+[^note]: An explanatory footnote.
+    Continue the same note with four spaces of indentation.
 ```
 
-Names may contain letters, digits, underscores, and hyphens. Notes are numbered by first reference and collected before Continue reading. Repeat a reference to reuse the same note; each occurrence gets its own return link. Undefined references, duplicate definitions, empty definitions, and references inside notes are rejected. Unused definitions are omitted. Inline and display math are supported in notes. Footnotes are for the article body, not frontmatter fields. Literal footnote syntax in code remains literal.
+The generated order is **article body → References and further reading → Footnotes → Continue reading**. Empty sections are omitted. Both headings match other article section headings. Do not manually add either heading when using these definitions.
+
+References are numbered in definition order and all are displayed, including uncited further reading. Cited references use bracketed superscripts, such as [1]. Footnotes have separate numbering in order of first citation. Uncited ordinary footnotes are omitted.
+
+Repeated `[^further]:` definitions are allowed: each becomes a separate entry. Bare `[^further]` cannot be cited inline because it could refer to multiple entries. Use `[^further-book]` and a matching definition instead. Every other definition name must be unique. Repeated inline citations reuse the same entry and provide a return link for each occurrence.
+
+Entries appear as **number → return link(s), if cited → text**. Uncited entries have no return links. Markdown links, emphasis, and math work inside definitions. Definitions belong on separate lines outside code and callout/comparison blocks. Start subsequent article headings unindented, separated by a blank line; indented headings inside definitions are rejected. Nested citations inside definitions are unsupported. Literal syntax inside code remains literal.
+
+### Further reading as an ordinary list
+
+You can alternatively write a normal section without definitions:
+
+```markdown
+## References and further reading
+
+- Author. Year. [Source title](https://example.com).
+- Author. *Book title*. Publisher, year.
+```
+
+Choose either this manual list or automatic source/further definitions to avoid duplicate headings. Direct links in prose are also supported. Replace example addresses with your actual sources.
+
+Regenerate the HTML after editing Markdown. Check that references precede footnotes and that citation/return links work. Do not edit generated HTML directly.
 
 ## Search within a section
 
-Writing, Lab, and Guides provide a search field on the right of the listing controls; it moves below the Writing filters on narrow screens. Search matches all entered words against each listing's visible title, topic, and description, ignoring case and accents. It searches listings, not the full text inside article, guide, or lab pages. Writing search combines with All / Technical / Essays.
+Writings, Lab, and Guides provide a search field on the right of the listing controls; it moves below the Writings filters on narrow screens. Search matches all entered words against each listing's visible title, topic, and description, ignoring case and accents. It searches listings, not the full text inside article, guide, or lab pages. Writings search combines with All / Technical / Essays.
 
 Search and category are stored in URL parameters (`q` and `filter`) and restored on refresh or return navigation. Clear removes the search while retaining the category. Without JavaScript, all entries remain available. New published articles are searchable automatically through their generated listing rows.

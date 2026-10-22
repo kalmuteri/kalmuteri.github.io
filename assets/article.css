@@ -7,7 +7,7 @@
 .essay-head .lead{max-width:780px}
 .essay-meta{border-top:1px solid var(--line);margin-top:27px;padding-top:18px;display:flex;flex-wrap:wrap;gap:12px 25px;color:var(--muted);font-size:.69rem;font-weight:800;letter-spacing:.1em}
 .essay-body{max-width:760px;margin:40px auto 0}
-.essay-body>h2{font-size:2rem;margin:38px 0 14px}
+.essay-body>h2,.article-footnotes>h2{font-size:2rem;margin:38px 0 14px}
 .essay-body>p{font-size:1.02rem;line-height:1.92;margin:0 0 19px;color:var(--ink-soft)}
 .essay-body code{background:var(--teal-soft);padding:1px 5px;border-radius:4px;color:var(--teal-dark)}
 .essay-callout{border-left:4px solid var(--teal);padding:21px 28px;background:var(--teal-soft);border-radius:0 12px 12px 0;margin-bottom:42px}
@@ -29,7 +29,7 @@
 .essay-body{margin-top:29px}
 }
 @media(max-width:440px){.essay-head h1{font-size:clamp(2.4rem,10vw,3.4rem)}
-.essay-body>h2{font-size:1.65rem}
+.essay-body>h2,.article-footnotes>h2{font-size:1.65rem}
 }
 
 /* Article rules from assets/ux.css */
@@ -61,3 +61,6 @@
 .footnote-ref a:focus-visible,.footnote-backlinks a:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
 .article-footnotes li:target{background:var(--teal-soft)}
 .footnote-backlinks{display:inline-flex;gap:10px}
+
+.article-footnotes li>p:first-child{margin-top:0}
+.article-footnotes .footnote-backlinks{margin-right:.35em}

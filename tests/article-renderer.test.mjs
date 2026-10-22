@@ -76,3 +76,43 @@ test('published metadata preserves title, breadcrumb, dates and separate subject
 test('HTML compaction preserves whitespace between inline phrases',()=>{
  const r=render('*First*\n**second**');assert.equal(r.status,0,r.stderr);assert.match(r.html,/<em>First<\/em>\s+<strong>second<\/strong>/);
 });
+
+test('further reading stays outside footnotes and return links precede note text',()=>{
+ const r=render('A statement[^note].\n\n[^note]: Supporting text.\n    Continued text.\n\n## References and further reading\n\n- [Independent source](https://example.com)');
+ assert.equal(r.status,0,r.stderr);
+ const section=r.html.indexOf('<section class="article-footnotes"');
+ assert.ok(r.html.indexOf('<h2 id="section-1">References and further reading</h2>')<section);
+ assert.match(r.html,/<li id="fn-note" tabindex="-1"><p><span class="footnote-backlinks">.*?<\/span> Supporting text\./);
+ assert.doesNotMatch(r.html.slice(section,r.html.indexOf('</section>',section)),/References and further reading/);
+});
+test('further reading needs no citation and creates no footnotes section',()=>{
+ const r=render('## References and further reading\n\n- [A source](https://example.com)');
+ assert.equal(r.status,0,r.stderr);assert.match(r.html,/A source/);assert.doesNotMatch(r.html,/class="article-footnotes"/);
+});
+test('indented section headings in a note fail with actionable guidance',()=>{
+ const r=render('Text[^note].\n\n[^note]: Explanation.\n    ## References and further reading');
+ assert.notEqual(r.status,0);assert.match(r.stderr,/unindented line/);
+});
+test('sources and repeated uncited further entries precede a separate footnote section',()=>{
+ const r=render('A note[^note]. A citation[^source] repeated[^source].\n\n[^note]: Explanation.\n[^source]: [Cited source](https://example.com).\n[^further]: Author. *First book*.\n[^further]: Author. *Second book*.');
+ assert.equal(r.status,0,r.stderr);
+ const start=r.html.indexOf('<section class="article-footnotes" role="doc-endnotes" aria-labelledby="references-title">');
+ const end=r.html.indexOf('<section class="article-footnotes" role="doc-endnotes" aria-labelledby="footnotes-title">');
+ assert.ok(start>=0&&end>start);
+ const refs=r.html.slice(start,end),notes=r.html.slice(end);
+ assert.equal((refs.match(/<li /g)||[]).length,3);
+ assert.match(refs,/<em>First book<\/em>/);assert.match(refs,/<em>Second book<\/em>/);
+ assert.doesNotMatch(refs,/Explanation/);assert.match(notes,/Explanation/);assert.doesNotMatch(notes,/Cited source|First book/);
+ assert.match(r.html,/aria-label="Reference 1">\[1\]/);assert.match(r.html,/aria-label="Footnote 1">1/);
+ assert.match(refs,/href="#fnref-source-2"/);
+ assert.equal((refs.match(/class="footnote-backlinks"/g)||[]).length,1);
+});
+test('further reading alone generates references without footnotes',()=>{
+ const r=render('[^further]: First.\n[^further]: Second.');
+ assert.equal(r.status,0,r.stderr);assert.match(r.html,/id="references-title"/);assert.doesNotMatch(r.html,/id="footnotes-title"|class="footnote-backlinks"/);
+});
+test('named references support inline citations; duplicate sources and bare further citations are rejected',()=>{
+ const good=render('Read this[^further-book].\n\n[^further-book]: A book.');assert.equal(good.status,0,good.stderr);assert.match(good.html,/aria-label="Reference 1"/);
+ assert.notEqual(render('Text[^source].\n\n[^source]: One.\n[^source]: Two.').status,0);
+ assert.notEqual(render('Text[^further].\n\n[^further]: One.').status,0);
+});

@@ -98,7 +98,7 @@ Figure 1: Your caption. Add the source or credit when applicable.
 | First item | Your explanation |
 | Second item | Your explanation |
 
-## Footnote example
+### Adding a footnote
 
 Add a supporting detail without interrupting the paragraph.[^detail]
 
@@ -112,11 +112,10 @@ Optional: explain the assumptions, uncertainties, or questions that remain.
 End with the main insight you want readers to remember.
 :::
 
-## References and further reading
+<!-- Optional sources and further reading. Their heading is generated automatically.
+Remove these example entries if unused. Use unique source-name identifiers for citations. -->
 
-- Author or organization. Year. [Source title](https://example.com). Add a DOI when available.
-- Author or organization. Year. [Source title](https://example.com).
-
-<!-- Link claims to references in the body where appropriate. Include only sources you actually used. -->
+[^further]: Author or organization. Year. [Source title](https://example.com). Add a DOI when available.
+[^further]: Author. *Book title*. Publisher, year.
 
 <!-- Set status to published and provide publication_date (YYYY-MM-DD) only when ready. Rendering creates a page locally; publishing and index updates are separate steps. -->

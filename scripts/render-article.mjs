@@ -34,20 +34,29 @@ body=body.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$|(`+)[^\n]*?\2/gm, ma
  const n=code.length;code.push(match);return `CODEPLACEHOLDER${n}END`;
 });
 const definitions=new Map();
+const bibliography=new Map();
+let furtherCount=0;
+const isReference=id=>/^(?:source|further)(?:$|[-_])/.test(id);
 body=body.replace(/^\[\^([a-zA-Z0-9_-]+)\]:[ \t]*(.*(?:\n(?: {4}|\t).*)*)$/gm,(_,id,text)=>{
+ if(id==='further')id=`further__entry_${++furtherCount}`;
  if(definitions.has(id))throw Error(`Duplicate footnote: ${id}`);
  const value=text.replace(/\n(?: {4}|\t)/g,'\n').trim();
  if(!value)throw Error(`Empty footnote: ${id}`);
- definitions.set(id,value);return '';
+ if(/^#{1,6}\s/m.test(value))throw Error(`Section heading inside footnote ${id}: put article headings on an unindented line outside the definition. Footnotes are generated automatically.`);
+ definitions.set(id,value);
+ if(isReference(id))bibliography.set(id,{number:bibliography.size+1,refs:[]});
+ return '';
 });
 const notes=new Map(),references=[];
 body=body.replace(/\[\^([a-zA-Z0-9_-]+)\]/g,(_,id)=>{
+ if(id==='further')throw Error('Use a unique name such as [^further-book] for an inline citation; bare [^further]: entries are uncited reading-list items');
  if(!definitions.has(id))throw Error(`Undefined footnote: ${id}`);
- if(!notes.has(id))notes.set(id,{number:notes.size+1,refs:[]});
- const note=notes.get(id),ref=`fnref-${id}-${note.refs.length+1}`;
+ const collection=isReference(id)?bibliography:notes;
+ if(!collection.has(id))collection.set(id,{number:collection.size+1,refs:[]});
+ const note=collection.get(id),ref=`fnref-${id}-${note.refs.length+1}`;
  note.refs.push(ref);
  const n=references.length;
- references.push(`<sup class="footnote-ref" id="${ref}"><a href="#fn-${id}" role="doc-noteref" aria-label="Footnote ${note.number}">${note.number}</a></sup>`);
+ references.push(`<sup class="footnote-ref" id="${ref}"><a href="#fn-${id}" role="doc-noteref" aria-label="${isReference(id)?'Reference':'Footnote'} ${note.number}">${isReference(id)?'['+note.number+']':note.number}</a></sup>`);
  return `FOOTNOTEPLACEHOLDER${n}END`;
 });
 const math=[];
@@ -79,21 +88,26 @@ html=html.replace(/<h2>(.*?)<\/h2>/g,(_,text)=>{const id=`section-${headings.len
 const toc=headings.length?`<details class="article-contents"><summary>In this article</summary><nav aria-label="Article contents"><ol>${headings.map(h=>`<li><a href="#${h.id}">${h.text}</a></li>`).join('')}</ol></nav></details>`:'';
 const related=meta.related_url?`<aside class="related-demo"><strong>${esc(meta.related_title||'Explore this idea')}</strong>${meta.related_description?`<p>${esc(meta.related_description)}</p>`:''}<a href="${url(meta.related_url)}">${esc(meta.related_label||'Open related content')} →</a></aside>`:'';
 const next=meta.next_url?`<div class="essay-next"><span>CONTINUE READING</span><a href="${url(meta.next_url)}">${esc(meta.next_title||'Next article')} ↗</a></div>`:'';
-let footnotes='';
-if(notes.size){
- const items=[...notes].map(([id,note])=>{
+function renderNotes(collection,heading,sectionId){
+ if(!collection.size)return '';
+ const items=[...collection].map(([id,note])=>{
   let text=definitions.get(id);
   if(/\[\^[a-zA-Z0-9_-]+\]/.test(text))throw Error('Footnotes cannot reference other footnotes');
   text=text.replace(/\$\$([\s\S]+?)\$\$|\$([^$\n]+)\$/g,(_,block,inline)=>{
    const n=math.length;math.push(block?`<div class="formula">\\[${esc(block.trim())}\\]</div>`:`\\(${esc(inline)}\\)`);return `MATHPLACEHOLDER${n}END`;
   });
-  return `<li id="fn-${id}" tabindex="-1">${md(text)}<span class="footnote-backlinks">${note.refs.map((ref,i)=>`<a href="#${ref}" role="doc-backlink" aria-label="Back to reference ${note.number}${note.refs.length>1?'.'+(i+1):''}">↩${note.refs.length>1?i+1:''}</a>`).join(' ')}</span></li>`;
+  const backlinks=note.refs.length?`<span class="footnote-backlinks">${note.refs.map((ref,i)=>`<a href="#${ref}" role="doc-backlink" aria-label="Back to ${isReference(id)?'source':'reference'} ${note.number}${note.refs.length>1?'.'+(i+1):''}">↩${note.refs.length>1?i+1:''}</a>`).join(' ')}</span>`:'';
+  const content=md(text);
+  const withReturn=content.startsWith('<p>')?content.replace('<p>',`<p>${backlinks} `):`${backlinks} ${content}`;
+  return `<li id="fn-${id}" tabindex="-1">${withReturn}</li>`;
  }).join('');
- footnotes=`<section class="article-footnotes" role="doc-endnotes" aria-labelledby="footnotes-title"><h2 id="footnotes-title">Footnotes</h2><ol>${items}</ol></section>`;
+ return `<section class="article-footnotes" role="doc-endnotes" aria-labelledby="${sectionId}"><h2 id="${sectionId}">${heading}</h2><ol>${items}</ol></section>`;
 }
+const referenceSection=renderNotes(bibliography,'References and further reading','references-title');
+const footnotes=renderNotes(notes,'Footnotes','footnotes-title');
 const words=html.replace(/<[^>]+>/g,' ').split(/\s+/).length,minutes=Math.max(1,Math.ceil(words/220));
 let shell=fs.readFileSync(path.join(root,'templates/article.html'),'utf8');
-const vars={TITLE:esc(meta.page_title||plain(meta.title)),BREADCRUMB:esc(meta.breadcrumb||plain(meta.title).toUpperCase()),DATES:(published?`<meta name="date" content="${meta.publication_date}">`:'')+(meta.updated_date?`<meta name="last-modified" content="${meta.updated_date}">`:''),SLUG:slug,SUMMARY:esc(meta.summary),ROBOTS:published?'index,follow':'noindex,nofollow',CONTENT:`<article class="essay"><header class="essay-head"><p class="eyebrow">${esc((meta.type||'Essay').toUpperCase())} · ${esc((meta.subject||meta.topic||'').toUpperCase())}${published?'':' · Draft preview'}</p><h1>${title(meta.title)}</h1><p class="content-date">${published?'Published '+stamp(meta.publication_date):'Draft · Not published'}${meta.updated_date?' · Updated '+stamp(meta.updated_date):''}</p><p class="lead">${esc(meta.subtitle||meta.summary)}</p><div class="essay-meta"><span>${esc(meta.type||'Essay')}${meta.article_number?' / '+esc(meta.article_number):''}</span><span>~${minutes} min read</span><span>${esc(meta.topic||'')}</span></div></header><div class="essay-body">${toc}${related}${html}${footnotes}${next}</div></article>`};
+const vars={TITLE:esc(meta.page_title||plain(meta.title)),BREADCRUMB:esc(meta.breadcrumb||plain(meta.title).toUpperCase()),DATES:(published?`<meta name="date" content="${meta.publication_date}">`:'')+(meta.updated_date?`<meta name="last-modified" content="${meta.updated_date}">`:''),SLUG:slug,SUMMARY:esc(meta.summary),ROBOTS:published?'index,follow':'noindex,nofollow',CONTENT:`<article class="essay"><header class="essay-head"><p class="eyebrow">${esc((meta.type||'Essay').toUpperCase())} · ${esc((meta.subject||meta.topic||'').toUpperCase())}${published?'':' · Draft preview'}</p><h1>${title(meta.title)}</h1><p class="content-date">${published?'Published '+stamp(meta.publication_date):'Draft · Not published'}${meta.updated_date?' · Updated '+stamp(meta.updated_date):''}</p><p class="lead">${esc(meta.subtitle||meta.summary)}</p><div class="essay-meta"><span>${esc(meta.type||'Essay')}${meta.article_number?' / '+esc(meta.article_number):''}</span><span>~${minutes} min read</span><span>${esc(meta.topic||'')}</span></div></header><div class="essay-body">${toc}${related}${html}${referenceSection}${footnotes}${next}</div></article>`};
 shell=shell.replace(/\{\{([A-Z]+)\}\}/g,(_,key)=>vars[key]??'');
 shell=shell.replace(/FOOTNOTEPLACEHOLDER(\d+)END/g,(_,n)=>references[n]).replace(/MATHPLACEHOLDER(\d+)END/g,(_,n)=>math[n]);
 // Compact only block markup inside the article; keep code whitespace intact.
